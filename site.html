@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Sites para Busca de Vagas — Tabela consolidada</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #666; --border: #e2e2e2;
+    --head-bg: #f5f5f5; --accent: #2563eb; --sim: #16803c; --nao: #b91c1c; --depende: #b45309;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #16181c; --fg: #e8e8e8; --muted: #9aa0a6; --border: #333;
+      --head-bg: #20232a; --accent: #60a5fa; --sim: #4ade80; --nao: #f87171; --depende: #fbbf24;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #16181c; --fg: #e8e8e8; --muted: #9aa0a6; --border: #333;
+    --head-bg: #20232a; --accent: #60a5fa; --sim: #4ade80; --nao: #f87171; --depende: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg); margin: 0; padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color: var(--muted); margin: 0 0 20px; font-size: 0.9rem; }
+  .controls {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  input[type=search], select {
+    padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg); color: var(--fg); font-size: 0.9rem;
+  }
+  input[type=search] { flex: 1; min-width: 180px; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 0.88rem; }
+  th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--head-bg); cursor: pointer; user-select: none; white-space: nowrap; }
+  th:hover { color: var(--accent); }
+  tr:last-child td { border-bottom: none; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .tag { padding: 2px 8px; border-radius: 999px; font-size: 0.78rem; font-weight: 600; }
+  .tag.sim { color: var(--sim); background: color-mix(in srgb, var(--sim) 15%, transparent); }
+  .tag.nao { color: var(--nao); background: color-mix(in srgb, var(--nao) 15%, transparent); }
+  .tag.depende { color: var(--depende); background: color-mix(in srgb, var(--depende) 15%, transparent); }
+  .tag.desconhecido { color: var(--muted); background: color-mix(in srgb, var(--muted) 15%, transparent); }
+  .obs { color: var(--muted); font-size: 0.82rem; }
+  .count { color: var(--muted); font-size: 0.85rem; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>Sites para Busca de Vagas</h1>
+  <p class="sub">Tabela única e filtrável — clique nos cabeçalhos para ordenar. "—" significa que ainda não foi avaliado.</p>
+
+  <div class="controls">
+    <input type="search" id="q" placeholder="Buscar por nome...">
+    <select id="cat">
+      <option value="">Todas as categorias</option>
+      <option value="Empregos em geral">Empregos em geral</option>
+<option value="Estágios e trainee">Estágios e trainee</option>
+<option value="Freelance">Freelance</option>
+<option value="Games">Games</option>
+<option value="Moda">Moda</option>
+<option value="Plataforma de ATS">Plataforma de ATS</option>
+<option value="Recrutamento tech / remoto">Recrutamento tech / remoto</option>
+<option value="Tecnologia geral">Tecnologia geral</option>
+    </select>
+    <select id="buscaFiltro">
+      <option value="">Busca própria: todas</option>
+      <option value="Sim">Tem busca própria</option>
+      <option value="Não">Sem busca própria</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th data-k="n">Site</th>
+          <th data-k="c">Categoria</th>
+          <th data-k="b">Busca própria</th>
+          <th data-k="s">Acompanha status</th>
+          <th>Observação</th>
+        </tr>
+      </thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+  <div class="count" id="count"></div>
+
+<script>
+const DATA = [{n:'APinfo',c:'Tecnologia geral',l:'https://www.apinfo.com/',b:'Sim',s:'—',o:''},{n:'frontendbr/vagas',c:'Tecnologia geral',l:'https://github.com/frontendbr/vagas',b:'Não',s:'—',o:'Repositório de issues, sem busca estruturada'},{n:'backend-br/vagas',c:'Tecnologia geral',l:'https://github.com/backend-br/vagas/',b:'Não',s:'—',o:'Repositório de issues, sem busca estruturada'},{n:'Hipsters.jobs',c:'Tecnologia geral',l:'https://hipsters.jobs/',b:'—',s:'—',o:'Fora do ar'},{n:'ProgramaThor',c:'Tecnologia geral',l:'https://programathor.com.br/',b:'Sim',s:'—',o:''},{n:'GeekHunter',c:'Tecnologia geral',l:'https://www.geekhunter.com.br',b:'Sim',s:'—',o:''},{n:'Revelo',c:'Tecnologia geral',l:'https://www.revelo.com.br/',b:'Sim',s:'—',o:''},{n:'Ilegra',c:'Recrutamento tech / remoto',l:'https://www.ilegra.com/pt',b:'—',s:'—',o:'Consultoria de tecnologia'},{n:'Ashby',c:'Recrutamento tech / remoto',l:'https://www.ashbyhq.com/',b:'Não',s:'Depende',o:'ATS: cada empresa tem board próprio, sem busca unificada'},{n:'Jobgether',c:'Recrutamento tech / remoto',l:'https://jobgether.com/',b:'Sim',s:'—',o:''},{n:'Turing',c:'Recrutamento tech / remoto',l:'https://www.turing.com/',b:'Sim',s:'—',o:''},{n:'Truelogic',c:'Recrutamento tech / remoto',l:'https://www.truelogic.io/',b:'—',s:'—',o:''},{n:'Software Mind',c:'Recrutamento tech / remoto',l:'https://softwaremind.com/',b:'—',s:'—',o:'Consultoria/outsourcing de TI'},{n:'Proxify',c:'Recrutamento tech / remoto',l:'https://proxify.io/',b:'—',s:'—',o:'Marketplace de devs remotos'},{n:'Andela',c:'Recrutamento tech / remoto',l:'https://www.andela.com/',b:'—',s:'—',o:''},{n:'Companhia de Estágios',c:'Estágios e trainee',l:'https://app.ciadeestagios.com.br/',b:'Sim',s:'—',o:''},{n:'Nube',c:'Estágios e trainee',l:'https://nube.com.br/',b:'—',s:'—',o:''},{n:'Across',c:'Estágios e trainee',l:'https://portal.across.jobs/',b:'—',s:'—',o:''},{n:'Wall Jobs',c:'Estágios e trainee',l:'https://www.walljobs.com.br/',b:'—',s:'—',o:''},{n:'Eureca',c:'Estágios e trainee',l:'https://eureca.me/#!/dash',b:'Sim',s:'—',o:''},{n:'Bettha',c:'Estágios e trainee',l:'https://www.bettha.com/',b:'Sim',s:'—',o:''},{n:'Cia de Talentos',c:'Estágios e trainee',l:'https://www.atsglobe.com/portal/',b:'Sim',s:'—',o:''},{n:'Connekt',c:'Empregos em geral',l:'https://vagas.connekt.com.br/',b:'Sim',s:'—',o:''},{n:'Indeed',c:'Empregos em geral',l:'https://www.indeed.com.br/',b:'Sim',s:'Sim',o:"Painel 'Minhas candidaturas'"},{n:'Vagas.com',c:'Empregos em geral',l:'https://www.vagas.com.br/empresas-contratando',b:'Sim',s:'Sim',o:"Painel 'Minhas candidaturas'"},{n:'InfoJobs',c:'Empregos em geral',l:'https://www.infojobs.com.br/',b:'Sim',s:'Sim',o:'Área do candidato'},{n:'99jobs',c:'Empregos em geral',l:'https://www.99jobs.com/',b:'Sim',s:'—',o:''},{n:'Trampos.co',c:'Empregos em geral',l:'https://trampos.co/',b:'Sim',s:'—',o:''},{n:'Gupy',c:'Empregos em geral',l:'https://portal.gupy.io/',b:'Sim',s:'Sim',o:'Portal do candidato mostra cada fase — o mais completo'},{n:'Curriculum.com.br',c:'Empregos em geral',l:'https://www.curriculum.com.br/',b:'Sim',s:'—',o:''},{n:'Randstad',c:'Empregos em geral',l:'https://www.randstad.com.br/',b:'Sim',s:'—',o:''},{n:'TAQE',c:'Empregos em geral',l:'https://app.taqe.com.br/#!/taqe/tabs/vacancies',b:'Sim',s:'—',o:''},{n:'Glassdoor',c:'Empregos em geral',l:'https://www.glassdoor.com.br/',b:'Sim',s:'—',o:''},{n:'Sólides Vagas',c:'Empregos em geral',l:'https://vagas.solides.com.br/',b:'Sim',s:'—',o:''},{n:'SmartRecruiters',c:'Empregos em geral',l:'https://jobs.smartrecruiters.com/',b:'Sim',s:'Depende',o:'Portal do candidato quando habilitado pela empresa'},{n:'Workable',c:'Empregos em geral',l:'https://jobs.workable.com/',b:'Sim',s:'Depende',o:'Portal do candidato quando habilitado pela empresa'},{n:'Recruta Simples',c:'Empregos em geral',l:'https://www.recrutasimples.com.br',b:'Sim',s:'—',o:''},{n:'RemoteOK',c:'Empregos em geral',l:'https://remoteok.com',b:'Sim',s:'—',o:''},{n:'Carreira Fashion',c:'Moda',l:'https://www.carreirafashion.com.br/',b:'Sim',s:'—',o:''},{n:'99Freelas',c:'Freelance',l:'https://www.99freelas.com.br/dashboard',b:'Sim',s:'—',o:''},{n:'Freelancer',c:'Freelance',l:'https://www.freelancer.com/search/projects/',b:'Sim',s:'—',o:''},{n:'Workana',c:'Freelance',l:'https://www.workana.com/dashboard',b:'Sim',s:'—',o:''},{n:'Upwork',c:'Freelance',l:'https://www.upwork.com/',b:'Sim',s:'—',o:''},{n:'GetNinjas',c:'Freelance',l:'https://www.getninjas.com.br/',b:'Sim',s:'—',o:''},{n:'PeoplePerHour',c:'Freelance',l:'https://www.peopleperhour.com/',b:'Sim',s:'—',o:''},{n:'WorkMarket',c:'Freelance',l:'https://www.workmarket.com/profile',b:'Sim',s:'—',o:''},{n:'Guru',c:'Freelance',l:'https://www.guru.com/',b:'Sim',s:'—',o:''},{n:'Freelancermap',c:'Freelance',l:'https://www.freelancermap.com/',b:'Sim',s:'—',o:''},{n:'Adeva',c:'Freelance',l:'https://app.adevait.com/',b:'—',s:'—',o:''},{n:'Truelancer',c:'Freelance',l:'https://www.truelancer.com/freelance-jobs',b:'Sim',s:'—',o:''},{n:'We Work Remotely',c:'Freelance',l:'https://weworkremotely.com/',b:'Sim',s:'—',o:''},{n:'SupportFinity',c:'Freelance',l:'https://supportfinity.com/',b:'—',s:'—',o:''},{n:'Epic Games',c:'Games',l:'https://www.epicgames.com/site/en-US/careers/jobs',b:'Sim',s:'—',o:''},{n:'Half Mermaid Productions',c:'Games',l:'https://halfmermaid.co/jobs',b:'—',s:'—',o:''},{n:'Square Enix',c:'Games',l:'https://www.square-enix-games.com/en_US/careers',b:'Sim',s:'—',o:''},{n:'Fireproof Games',c:'Games',l:'https://www.fireproofgames.com/',b:'—',s:'—',o:''},{n:'Wales Interactive',c:'Games',l:'https://www.walesinteractive.com/careers',b:'—',s:'—',o:''},{n:'Innersloth',c:'Games',l:'https://www.innersloth.com/inside-innersloth/',b:'—',s:'—',o:''},{n:'Bungie',c:'Games',l:'https://careers.bungie.com/jobs',b:'Sim',s:'—',o:''},{n:'Rockstar Games',c:'Games',l:'https://www.rockstargames.com/careers/openings',b:'Sim',s:'—',o:''},{n:'Valve',c:'Games',l:'https://www.valvesoftware.com/pt-br/?job_cat=software-engineering',b:'Sim',s:'—',o:''},{n:"World's Edge (Age of Empires)",c:'Games',l:'https://www.ageofempires.com/careers/',b:'—',s:'—',o:''},{n:'Xbox / Microsoft',c:'Games',l:'https://jobs.careers.microsoft.com/global/en/search?lc=Brazil',b:'Sim',s:'—',o:''},{n:'Marmalade Game Studio',c:'Games',l:'https://career.marmaladegamestudio.com/',b:'—',s:'—',o:''},{n:'Electronic Arts',c:'Games',l:'https://www.ea.com/pt-br/careers',b:'Sim',s:'—',o:''},{n:'Crystal Dynamics',c:'Games',l:'https://www.crystaldynamics.com/careers/',b:'—',s:'—',o:''},{n:'CD Projekt Red',c:'Games',l:'https://www.cdprojektred.com/en/jobs',b:'Sim',s:'—',o:''},{n:'Team17 Digital',c:'Games',l:'https://apply.workable.com/team-17-digital/',b:'Sim',s:'Depende',o:''},{n:'Whitethorn Games',c:'Games',l:'https://whitethorngames.com/careers',b:'—',s:'—',o:''},{n:'Hazelight',c:'Games',l:'https://www.hazelight.se/careers/',b:'—',s:'—',o:''},{n:'Quantic Dream',c:'Games',l:'https://www.quanticdream.com/en/careers',b:'—',s:'—',o:''},{n:'Ubisoft',c:'Games',l:'https://www.ubisoft.com/en-us/company/careers',b:'Sim',s:'—',o:''},{n:"D'Avekki Studios",c:'Games',l:'https://davekki.com/',b:'—',s:'—',o:''},{n:'Capcom',c:'Games',l:'https://www.capcom.com/',b:'—',s:'—',o:''},{n:'ZeniMax',c:'Games',l:'https://jobs.zenimax.com/',b:'Sim',s:'—',o:''},{n:'BioWare',c:'Games',l:'https://www.bioware.com/careers/',b:'—',s:'—',o:''},{n:'Dimensional Ink Games',c:'Games',l:'https://www.dimensionalink.com/careers',b:'—',s:'—',o:''},{n:'Daybreak Game Company',c:'Games',l:'https://www.daybreakgames.com/careers',b:'Sim',s:'—',o:''},{n:'Sassybot (estágios)',c:'Games',l:'https://sassybot.com/internships/',b:'—',s:'—',o:''},{n:'WB Games',c:'Games',l:'https://warnerbrosgames.com/careers',b:'—',s:'—',o:''},{n:'gamigo group',c:'Games',l:'https://apply.workable.com/gamigo/',b:'Sim',s:'Depende',o:''},{n:'tinyBuild',c:'Games',l:'https://www.tinybuild.com/jobs',b:'—',s:'—',o:''},{n:'Bandai Namco',c:'Games',l:'https://www.bandainamcoent.com/careers',b:'—',s:'—',o:''},{n:'Frontier Developments',c:'Games',l:'https://www.frontier.co.uk/careers',b:'Sim',s:'—',o:''},{n:'Osmotic Studios',c:'Games',l:'https://www.osmoticstudios.com/jobs/',b:'—',s:'—',o:''},{n:'Remedy Games',c:'Games',l:'https://www.remedygames.com/careers',b:'—',s:'—',o:''},{n:'Eidos-Montréal',c:'Games',l:'https://www.eidosmontreal.com/',b:'—',s:'—',o:''},{n:'Konami',c:'Games',l:'https://www.konami.com/jobs/en/',b:'—',s:'—',o:''},{n:'Pine Studio',c:'Games',l:'https://pinestudio.com/careers/',b:'—',s:'—',o:''},{n:'Digital Extremes',c:'Games',l:'https://www.digitalextremes.com/careers',b:'—',s:'—',o:''},{n:'MY.GAMES',c:'Games',l:'https://careers.my.games/',b:'Sim',s:'—',o:''},{n:'Catho',c:'Plataforma de ATS',l:'https://www.catho.com.br/',b:'Sim',s:'Sim',o:"Painel 'Minhas candidaturas'"},{n:'LinkedIn',c:'Plataforma de ATS',l:'https://www.linkedin.com/',b:'Sim',s:'Sim',o:'Status básico (enviado/visualizado)'},{n:'Bliteti',c:'Plataforma de ATS',l:'https://bliteti.com.br/',b:'Não',s:'—',o:'ATS de empresa, sem busca unificada'},{n:'FactorialHR',c:'Plataforma de ATS',l:'https://factorialhr.com.br/',b:'Não',s:'—',o:'ATS de empresa, sem busca unificada'},{n:'Flash',c:'Plataforma de ATS',l:'https://www.flashapp.com.br/',b:'Não',s:'—',o:'ATS de empresa, sem busca unificada'},{n:'Greenhouse',c:'Plataforma de ATS',l:'https://www.greenhouse.io/',b:'Não',s:'Depende',o:'ATS de empresa, sem busca unificada'},{n:'InHire',c:'Plataforma de ATS',l:'https://www.inhire.com.br/',b:'Não',s:'Depende',o:'ATS de empresa, sem busca unificada'},{n:'Jobii',c:'Plataforma de ATS',l:'https://www.jobii.com.br/',b:'Não',s:'—',o:'ATS de empresa, sem busca unificada'},{n:'Oracle Cloud HCM',c:'Plataforma de ATS',l:'https://www.oracle.com/cloud/',b:'Não',s:'—',o:'ATS de empresa, sem busca unificada'},{n:'Quickin',c:'Plataforma de ATS',l:'https://quickin.io/',b:'Não',s:'—',o:'ATS de empresa, sem busca unificada'},{n:'Recrut.ai',c:'Plataforma de ATS',l:'https://recrut.ai/',b:'Não',s:'—',o:'ATS de empresa, sem busca unificada'},{n:'Rippling',c:'Plataforma de ATS',l:'https://www.rippling.com/',b:'Não',s:'—',o:'ATS de empresa, sem busca unificada'},{n:'TalentLyft',c:'Plataforma de ATS',l:'https://www.talentlyft.com/',b:'Não',s:'—',o:'ATS de empresa, sem busca unificada'},{n:'Workday',c:'Plataforma de ATS',l:'https://www.workday.com/',b:'Não',s:'Depende',o:'ATS de empresa, sem busca unificada'},{n:'iziRH',c:'Plataforma de ATS',l:'https://www.izirh.com.br/',b:'Não',s:'Depende',o:'ATS de empresa, sem busca unificada'},{n:'Lever',c:'Plataforma de ATS',l:'https://www.lever.co/',b:'Não',s:'Depende',o:'ATS de empresa, sem busca unificada'}];
+
+function tag(value) {
+  if (value === "Sim") return '<span class="tag sim">Sim</span>';
+  if (value === "Não") return '<span class="tag nao">Não</span>';
+  if (value === "Depende") return '<span class="tag depende">Depende</span>';
+  return '<span class="tag desconhecido">—</span>';
+}
+
+let sortKey = 'n', sortAsc = true;
+
+function render() {
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  const cat = document.getElementById('cat').value;
+  const busca = document.getElementById('buscaFiltro').value;
+
+  let rows = DATA.filter(d => {
+    if (q && !d.n.toLowerCase().includes(q)) return false;
+    if (cat && d.c !== cat) return false;
+    if (busca && d.b !== busca) return false;
+    return true;
+  });
+
+  rows.sort((a, b) => {
+    let r = String(a[sortKey]).localeCompare(String(b[sortKey]), 'pt-BR');
+    return sortAsc ? r : -r;
+  });
+
+  document.getElementById('body').innerHTML = rows.map(d => `
+    <tr>
+      <td><a href="${d.l}" target="_blank" rel="noopener">${d.n}</a></td>
+      <td>${d.c}</td>
+      <td>${tag(d.b)}</td>
+      <td>${tag(d.s)}</td>
+      <td class="obs">${d.o || ''}</td>
+    </tr>
+  `).join('');
+
+  document.getElementById('count').textContent = `${rows.length} de ${DATA.length} sites`;
+}
+
+document.getElementById('q').addEventListener('input', render);
+document.getElementById('cat').addEventListener('change', render);
+document.getElementById('buscaFiltro').addEventListener('change', render);
+document.querySelectorAll('th[data-k]').forEach(th => {
+  th.addEventListener('click', () => {
+    const k = th.dataset.k;
+    if (sortKey === k) sortAsc = !sortAsc; else { sortKey = k; sortAsc = true; }
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
